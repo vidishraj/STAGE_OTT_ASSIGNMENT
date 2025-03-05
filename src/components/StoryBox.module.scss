@@ -1,0 +1,21 @@
+.storyBox {
+  height: 84px;
+  width: 72px;
+  border-radius: 50%;
+}
+
+.profilePicture {
+  width: 66px;
+  border-radius: 50%;
+  height: 66px;
+  border: 1px solid red;
+  padding: 2px 2px;
+}
+
+span {
+  display: block;
+  width: 66px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
