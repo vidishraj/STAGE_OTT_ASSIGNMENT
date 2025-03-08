@@ -19,6 +19,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const [imgIdx, setImgIdx] = useState<number>(0);
   const [userIdx, setUserIdx] = useState<number>(selectedUser);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { state, dispatch } = useStoryContext();
 
   const user = state.users[userIdx];
@@ -32,6 +34,9 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   useEffect(() => {
     if (!open || imageSrcList.length === 0) return;
 
+    setIsLoading(true);
+    setIsImageLoaded(false);
+
     const firstUnviewedIndex = imageSrcList.findIndex((img) => !img.viewed);
     setImgIdx(firstUnviewedIndex !== -1 ? firstUnviewedIndex : 0);
 
@@ -42,7 +47,17 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   }, [open, userIdx]);
 
   useEffect(() => {
-    if (!open || imageSrcList.length === 0) return;
+    setIsLoading(true);
+    setIsImageLoaded(false);
+
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  }, [imgIdx]);
+
+  useEffect(() => {
+    if (!open || !isImageLoaded || imageSrcList.length === 0) return;
 
     const id = setInterval(() => {
       setImgIdx((prevIdx) => {
@@ -62,7 +77,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
     setIntervalId(id);
     return () => clearInterval(id);
-  }, [open, imageSrcList.length, onComplete, userIdx, userName]);
+  }, [open, isImageLoaded, imageSrcList.length, onComplete, userIdx, userName]);
 
   function moveStory(clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     if (imageSrcList.length === 0) return;
@@ -89,9 +104,12 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       } else {
         setImgIdx(Math.max(0, imgIdx - 1));
       }
-    } else if (xClick > 2 * third) {
+    }
+    // Right third of the screen
+    else if (xClick > 2 * third) {
       if (imgIdx + 1 >= imageSrcList.length) {
         if (userIdx < state.users.length - 1) {
+          // Go to next user
           const nextUserIdx = userIdx + 1;
 
           if (intervalId) {
@@ -115,6 +133,11 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
     }
   }
 
+  const handleImageLoad = () => {
+    setIsImageLoaded(true);
+    setIsLoading(false);
+  };
+
   if (!open || imageSrcList.length === 0) return null;
 
   return (
@@ -128,11 +151,19 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         profilePictureUrl={user?.profilePicture}
         currentStoryIndex={imgIdx}
       />
+
+      {isLoading && (
+        <div className={styles.loaderContainer}>
+          <div className={styles.loader}></div>
+        </div>
+      )}
+
       {imageSrcList[imgIdx] && (
         <img
-          className={styles.story}
+          className={`${styles.story} ${isImageLoaded ? styles.loaded : styles.hidden}`}
           src={imageSrcList[imgIdx].url}
           alt="userStory"
+          onLoad={handleImageLoad}
         />
       )}
     </div>
