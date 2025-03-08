@@ -1,0 +1,104 @@
+[
+  {
+    "user": "Alice Wnder",
+    "profilePicture": "/profile_pictures/P1.jpg",
+    "stories": [
+      {
+        "url": "/stories/S1.jpg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S2.jpg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Bob Builder",
+    "profilePicture": "/profile_pictures/P2.jpg",
+    "stories": [
+      {
+        "url": "/stories/S3.jpg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S4.jpg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S5.jpg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Rahul Singh",
+    "profilePicture": "/profile_pictures/P3.jpg",
+    "stories": [
+      {
+        "url": "/stories/S6.jpeg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Aaryan Dev",
+    "profilePicture": "/profile_pictures/P4.jpg",
+    "stories": [
+      {
+        "url": "/stories/S9.jpeg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S10.jpeg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S11.jpeg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Riwan Raj",
+    "profilePicture": "/profile_pictures/P5.jpg",
+    "stories": [
+      {
+        "url": "/stories/S12.jpeg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S13.jpeg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Rishi Gupta",
+    "profilePicture": "/profile_pictures/P6.jpeg",
+    "stories": [
+      {
+        "url": "/stories/S7.png",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S8.jpeg",
+        "viewed": false
+      }
+    ]
+  },
+  {
+    "user": "Ricardo Dev",
+    "profilePicture": "/profile_pictures/P7.jpeg",
+    "stories": [
+      {
+        "url": "/stories/S14.jpeg",
+        "viewed": false
+      },
+      {
+        "url": "/stories/S15.png",
+        "viewed": false
+      }
+    ]
+  }
+]
