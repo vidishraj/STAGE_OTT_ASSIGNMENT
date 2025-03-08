@@ -1,14 +1,44 @@
 .header {
   position: fixed;
-  //padding: 10px 10px;
   width: 100%;
+}
+
+.loadingBarsContainer {
+  display: flex;
+  width: 100%;
+  gap: 4px;
+  padding: 3px 4px;
 }
 
 .loadingBar {
   height: 0.15rem;
-  background-color: antiquewhite; /* Green */
-  animation: loading 5s linear forwards;
-  animation-iteration-count: infinite;
+  flex: 1;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.loaded {
+  background-color: white;
+}
+
+.loading {
+  background-color: rgba(255, 255, 255, 0.3);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background-color: white;
+    animation: progressAnimation 5s linear forwards;
+  }
+}
+
+.notLoaded {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .pictureUsername {
@@ -17,7 +47,6 @@
   font-weight: bold;
   align-items: center;
   gap: 0.6rem;
-
 }
 
 .headerPicture {
@@ -26,7 +55,7 @@
   border-radius: 50%;
 }
 
-@keyframes loading {
+@keyframes progressAnimation {
   from {
     width: 0%;
   }

@@ -89,7 +89,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         intervalId={intervalId}
         userName={userName}
         onClose={onClose}
+        storyCount={state.users[selectedUser].storyCount}
+        viewCount={state.users[selectedUser].viewCount}
         profilePictureUrl={user?.profilePicture}
+        currentStoryIndex={imgIdx}
       />
       {imageSrcList[imgIdx] && (
         <img
