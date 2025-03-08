@@ -152,7 +152,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         currentStoryIndex={imgIdx}
       />
 
-      {isLoading && (
+      {isLoading && isImageLoaded && (
         <div className={styles.loaderContainer}>
           <div className={styles.loader}></div>
         </div>
