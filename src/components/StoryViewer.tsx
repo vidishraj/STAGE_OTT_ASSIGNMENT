@@ -17,20 +17,29 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   selectedUser,
 }) => {
   const [imgIdx, setImgIdx] = useState<number>(0);
+  const [userIdx, setUserIdx] = useState<number>(selectedUser);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const { state, dispatch } = useStoryContext();
 
-  const user = state.users[selectedUser];
+  const user = state.users[userIdx];
   const imageSrcList = user?.stories || [];
   const userName = user?.user || "";
 
   useEffect(() => {
+    setUserIdx(selectedUser);
+  }, [selectedUser]);
+
+  useEffect(() => {
     if (!open || imageSrcList.length === 0) return;
 
-    // Set the first unviewed story as the starting index
     const firstUnviewedIndex = imageSrcList.findIndex((img) => !img.viewed);
     setImgIdx(firstUnviewedIndex !== -1 ? firstUnviewedIndex : 0);
-  }, [open, selectedUser]);
+
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  }, [open, userIdx]);
 
   useEffect(() => {
     if (!open || imageSrcList.length === 0) return;
@@ -53,7 +62,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
     setIntervalId(id);
     return () => clearInterval(id);
-  }, [open, imageSrcList.length, onComplete]);
+  }, [open, imageSrcList.length, onComplete, userIdx, userName]);
 
   function moveStory(clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     if (imageSrcList.length === 0) return;
@@ -62,23 +71,48 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
     const xClick = clickEvent.clientX;
     const third = width / 3;
 
-    setImgIdx((prevIdx) => {
-      if (xClick < third) {
-        return Math.max(0, prevIdx - 1);
-      } else if (xClick > 2 * third) {
-        if (prevIdx + 1 >= imageSrcList.length) {
-          onComplete();
-          return prevIdx;
+    if (xClick < third) {
+      if (imgIdx === 0) {
+        if (userIdx > 0) {
+          const prevUserIdx = userIdx - 1;
+          const prevUser = state.users[prevUserIdx];
+          if (prevUser && prevUser.stories.length > 0) {
+            if (intervalId) {
+              clearInterval(intervalId);
+              setIntervalId(null);
+            }
+
+            setUserIdx(prevUserIdx);
+            setImgIdx(prevUser.stories.length - 1);
+          }
         }
+      } else {
+        setImgIdx(Math.max(0, imgIdx - 1));
+      }
+    } else if (xClick > 2 * third) {
+      if (imgIdx + 1 >= imageSrcList.length) {
+        if (userIdx < state.users.length - 1) {
+          const nextUserIdx = userIdx + 1;
+
+          if (intervalId) {
+            clearInterval(intervalId);
+            setIntervalId(null);
+          }
+
+          setUserIdx(nextUserIdx);
+          setImgIdx(0);
+        } else {
+          onComplete();
+        }
+      } else {
         dispatch({
           type: "MARK_STORY_VIEWED",
           user: userName,
-          storyUrl: imageSrcList[prevIdx]?.url,
+          storyUrl: imageSrcList[imgIdx]?.url,
         });
-        return prevIdx + 1;
+        setImgIdx(imgIdx + 1);
       }
-      return prevIdx;
-    });
+    }
   }
 
   if (!open || imageSrcList.length === 0) return null;
@@ -89,8 +123,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         intervalId={intervalId}
         userName={userName}
         onClose={onClose}
-        storyCount={state.users[selectedUser].storyCount}
-        viewCount={state.users[selectedUser].viewCount}
+        storyCount={user?.storyCount || 0}
+        viewCount={user?.viewCount || 0}
         profilePictureUrl={user?.profilePicture}
         currentStoryIndex={imgIdx}
       />

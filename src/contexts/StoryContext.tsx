@@ -4,10 +4,10 @@ import React, {
   useContext,
   ReactNode,
   useMemo,
+  useEffect,
 } from "react";
 import UserInfo from "../assets/userStories.json";
 
-// Types
 interface Story {
   url: string;
   viewed: boolean;
@@ -28,77 +28,113 @@ interface State {
 type Action =
   | { type: "MARK_STORY_VIEWED"; user: string; storyUrl: string }
   | { type: "MARK_USER_VIEWED"; user: string }
-  | { type: "UPDATE_COUNTS"; user: string };
+  | { type: "UPDATE_COUNTS"; user: string }
+  | { type: "SORT_USERS" };
 
-// Reducer
+const sortUsersByViewedStatus = (users: UserStory[]): UserStory[] => {
+  return [...users].sort((a, b) => {
+    const aAllViewed = a.viewCount === a.storyCount;
+    const bAllViewed = b.viewCount === b.storyCount;
+
+    if (aAllViewed && !bAllViewed) {
+      return 1;
+    }
+
+    if (bAllViewed && !aAllViewed) {
+      return -1;
+    }
+
+    return 0;
+  });
+};
+
 const storyReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case "MARK_STORY_VIEWED":
-      return {
-        ...state,
-        users: state.users.map((userStory) =>
-          userStory.user === action.user
-            ? {
-                ...userStory,
-                viewCount: userStory.viewCount + 1,
-                stories: userStory.stories.map((story) =>
-                  story.url === action.storyUrl
-                    ? { ...story, viewed: true }
-                    : story,
-                ),
-              }
-            : userStory,
-        ),
-      };
+    case "MARK_STORY_VIEWED": {
+      const updatedUsers = state.users.map((userStory) =>
+        userStory.user === action.user
+          ? {
+              ...userStory,
+              viewCount: userStory.viewCount + 1,
+              stories: userStory.stories.map((story) =>
+                story.url === action.storyUrl
+                  ? { ...story, viewed: true }
+                  : story,
+              ),
+            }
+          : userStory,
+      );
 
-    case "MARK_USER_VIEWED":
       return {
         ...state,
-        users: state.users.map((userStory) =>
-          userStory.user === action.user
-            ? {
-                ...userStory,
-                viewCount: userStory.storyCount,
-                stories: userStory.stories.map((story) => ({
-                  ...story,
-                  viewed: true,
-                })),
-              }
-            : userStory,
-        ),
+        users: updatedUsers,
       };
+    }
 
-    case "UPDATE_COUNTS":
+    case "MARK_USER_VIEWED": {
+      const updatedUsers = state.users.map((userStory) =>
+        userStory.user === action.user
+          ? {
+              ...userStory,
+              viewCount: userStory.storyCount,
+              stories: userStory.stories.map((story) => ({
+                ...story,
+                viewed: true,
+              })),
+            }
+          : userStory,
+      );
+
+      const sortedUsers = sortUsersByViewedStatus(updatedUsers);
+
       return {
         ...state,
-        users: state.users.map((userStory) =>
-          userStory.user === action.user
-            ? {
-                ...userStory,
-                viewCount: userStory.stories.filter((story) => story.viewed)
-                  .length,
-                storyCount: userStory.stories.length,
-              }
-            : userStory,
-        ),
+        users: sortedUsers,
       };
+    }
+
+    case "UPDATE_COUNTS": {
+      const updatedUsers = state.users.map((userStory) =>
+        userStory.user === action.user
+          ? {
+              ...userStory,
+              viewCount: userStory.stories.filter((story) => story.viewed)
+                .length,
+              storyCount: userStory.stories.length,
+            }
+          : userStory,
+      );
+
+      return {
+        ...state,
+        users: updatedUsers,
+      };
+    }
+
+    case "SORT_USERS": {
+      const sortedUsers = sortUsersByViewedStatus(state.users);
+
+      return {
+        ...state,
+        users: sortedUsers,
+      };
+    }
 
     default:
       return state;
   }
 };
 
-// Context
 const StoryContext = createContext<{
   state: State;
   dispatch: React.Dispatch<Action>;
+  getUserByIndex: (index: number) => UserStory | null;
+  getStoryByIndex: (userIndex: number, storyIndex: number) => Story | null;
 } | null>(null);
 
-// Provider
 export const StoryProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Initialize state with processed UserInfo
   const initialState: State = useMemo(() => {
     const formattedUsers = UserInfo.map((user: any) => ({
       ...user,
@@ -110,14 +146,42 @@ export const StoryProvider: React.FC<{ children: ReactNode }> = ({
 
   const [state, dispatch] = useReducer(storyReducer, initialState);
 
+  const getUserByIndex = (index: number): UserStory | null => {
+    if (index < 0 || index >= state.users.length) {
+      return null;
+    }
+    return state.users[index];
+  };
+
+  const getStoryByIndex = (
+    userIndex: number,
+    storyIndex: number,
+  ): Story | null => {
+    const user = getUserByIndex(userIndex);
+    if (!user || storyIndex < 0 || storyIndex >= user.stories.length) {
+      return null;
+    }
+    return user.stories[storyIndex];
+  };
+
+  useEffect(() => {
+    dispatch({ type: "SORT_USERS" });
+  }, []);
+
+  const contextValue = {
+    state,
+    dispatch,
+    getUserByIndex,
+    getStoryByIndex,
+  };
+
   return (
-    <StoryContext.Provider value={{ state, dispatch }}>
+    <StoryContext.Provider value={contextValue}>
       {children}
     </StoryContext.Provider>
   );
 };
 
-// Hook to use the context
 export const useStoryContext = () => {
   const context = useContext(StoryContext);
   if (!context) {
