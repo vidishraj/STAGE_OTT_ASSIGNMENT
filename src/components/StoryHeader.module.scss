@@ -1,0 +1,43 @@
+.header {
+  position: fixed;
+  //padding: 10px 10px;
+  width: 100%;
+}
+
+.loadingBar {
+  height: 0.15rem;
+  background-color: antiquewhite; /* Green */
+  animation: loading 5s linear forwards;
+  animation-iteration-count: infinite;
+}
+
+.pictureUsername {
+  display: flex;
+  padding: 3px 10px;
+  font-weight: bold;
+  align-items: center;
+  gap: 0.6rem;
+
+}
+
+.headerPicture {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+}
+
+@keyframes loading {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.infoLine {
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+}
