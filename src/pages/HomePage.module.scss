@@ -5,11 +5,16 @@
 
 
 .storyBoxContainer {
-  height: 84px;
+  height: 120px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  padding: 10px 10px;
+  overflow-x: scroll;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
