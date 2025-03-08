@@ -14,30 +14,30 @@
   height: 0.15rem;
   flex: 1;
   border-radius: 2px;
-  position: relative;
-  overflow: hidden;
+  cursor: pointer;
 }
 
-.loaded {
+.viewed {
   background-color: white;
 }
 
-.loading {
+.current {
+  position: relative;
   background-color: rgba(255, 255, 255, 0.3);
 
-  &::before {
+  &::after {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    width: 0%;
+    width: 0;
     background-color: white;
-    animation: progressAnimation 5s linear forwards;
+    animation: loadingProgress 5s linear forwards;
   }
 }
 
-.notLoaded {
+.unviewed {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -55,7 +55,7 @@
   border-radius: 50%;
 }
 
-@keyframes progressAnimation {
+@keyframes loadingProgress {
   from {
     width: 0%;
   }

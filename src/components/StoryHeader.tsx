@@ -1,5 +1,6 @@
 import React from "react";
 import style from "./StoryHeader.module.scss";
+import CloseIcon from "./CloseIcon.tsx";
 
 interface StoryHeaderProps {
   intervalId: NodeJS.Timeout | null;
@@ -9,6 +10,7 @@ interface StoryHeaderProps {
   storyCount: number;
   viewCount: number;
   currentStoryIndex: number;
+  onStoryBarClick?: (index: number) => void; // Optional click handler for direct navigation
 }
 
 const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
@@ -17,24 +19,41 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
     onClose,
     profilePictureUrl,
     storyCount,
-    viewCount,
     currentStoryIndex,
+    onStoryBarClick,
   } = props;
 
   const renderLoadingBars = () => {
     const bars = [];
     for (let i = 0; i < storyCount; i++) {
-      const barStatus =
-        i < viewCount && i !== currentStoryIndex
-          ? style.loaded
-          : i === currentStoryIndex
-            ? style.loading
-            : style.notLoaded;
+      // Updated logic for bar status:
+      // 1. Stories before currentStoryIndex are viewed
+      // 2. Current story is in progress
+      // 3. Stories after currentStoryIndex are unviewed, regardless of their actual viewed status
+      const isViewed = i < currentStoryIndex;
+      const isCurrent = i === currentStoryIndex;
+      const isUnviewed = i > currentStoryIndex;
+
+      const handleClick = () => {
+        if (onStoryBarClick) {
+          onStoryBarClick(i);
+        }
+      };
+
+      let barStatus;
+      if (isViewed) {
+        barStatus = style.viewed;
+      } else if (isCurrent) {
+        barStatus = style.current;
+      } else if (isUnviewed) {
+        barStatus = style.unviewed;
+      }
 
       bars.push(
         <div
           key={`story-bar-${i}`}
           className={`${style.loadingBar} ${barStatus}`}
+          onClick={handleClick}
         ></div>,
       );
     }
@@ -54,9 +73,9 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
           <p style={{ color: "white" }}>{userName}</p>
           <p style={{ color: "darkgrey" }}> 11h</p>
         </div>
-        <p onClick={onClose} style={{ color: "white" }}>
-          X
-        </p>
+        <div style={{ padding: "2px 10px", color: "white" }} onClick={onClose}>
+          <CloseIcon />
+        </div>
       </div>
     </div>
   );
