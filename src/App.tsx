@@ -1,9 +1,12 @@
 import HomePage from "./pages/HomePage.tsx";
+import { StoryProvider } from "./contexts/StoryContext.tsx";
 
 function App() {
   return (
-    <HomePage/>
-  )
+    <StoryProvider>
+      <HomePage />
+    </StoryProvider>
+  );
 }
 
-export default App
+export default App;
