@@ -25,7 +25,7 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
     isLoading = false, // Default to false if not provided
     intervalId,
   } = props;
-
+  console.log("Next story");
   const renderLoadingBars = () => {
     const bars = [];
     for (let i = 0; i < storyCount; i++) {
