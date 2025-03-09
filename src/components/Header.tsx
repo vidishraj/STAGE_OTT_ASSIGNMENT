@@ -14,7 +14,9 @@ const Header = () => {
         flexWrap: "nowrap",
       }}
     >
-      <InstagramSVG style={{ height: "100%", width: "35%" }} />{" "}
+      <InstagramSVG
+        style={{ height: "100%", width: "35%", maxWidth: "150px" }}
+      />{" "}
     </div>
   );
 };
