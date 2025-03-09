@@ -77,7 +77,15 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
     setIntervalId(id);
     return () => clearInterval(id);
-  }, [open, isImageLoaded, imageSrcList.length, onComplete, userIdx, userName]);
+  }, [
+    open,
+    isImageLoaded,
+    imageSrcList.length,
+    onComplete,
+    userIdx,
+    userName,
+    dispatch,
+  ]);
 
   function moveStory(clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     if (imageSrcList.length === 0) return;
@@ -134,8 +142,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   }
 
   const handleImageLoad = () => {
-    setIsImageLoaded(true);
     setIsLoading(false);
+    setIsImageLoaded(true);
   };
 
   if (!open || imageSrcList.length === 0) return null;
@@ -150,9 +158,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
         viewCount={user?.viewCount || 0}
         profilePictureUrl={user?.profilePicture}
         currentStoryIndex={imgIdx}
+        isLoading={isLoading} // Pass loading state to StoryHeader
       />
 
-      {isLoading && isImageLoaded && (
+      {isLoading && (
         <div className={styles.loaderContainer}>
           <div className={styles.loader}></div>
         </div>

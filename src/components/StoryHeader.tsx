@@ -10,6 +10,7 @@ interface StoryHeaderProps {
   storyCount: number;
   viewCount: number;
   currentStoryIndex: number;
+  isLoading?: boolean; // Add loading state prop
   onStoryBarClick?: (index: number) => void; // Optional click handler for direct navigation
 }
 
@@ -21,6 +22,8 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
     storyCount,
     currentStoryIndex,
     onStoryBarClick,
+    isLoading = false, // Default to false if not provided
+    intervalId,
   } = props;
 
   const renderLoadingBars = () => {
@@ -28,7 +31,7 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
     for (let i = 0; i < storyCount; i++) {
       // Updated logic for bar status:
       // 1. Stories before currentStoryIndex are viewed
-      // 2. Current story is in progress
+      // 2. Current story is in progress only if not loading
       // 3. Stories after currentStoryIndex are unviewed, regardless of their actual viewed status
       const isViewed = i < currentStoryIndex;
       const isCurrent = i === currentStoryIndex;
@@ -44,7 +47,12 @@ const StoryHeader: React.FC<StoryHeaderProps> = (props) => {
       if (isViewed) {
         barStatus = style.viewed;
       } else if (isCurrent) {
-        barStatus = style.current;
+        // Only apply the current (animating) style if the image is loaded and timer is active
+        barStatus = isLoading
+          ? style.paused
+          : intervalId
+            ? style.current
+            : style.paused;
       } else if (isUnviewed) {
         barStatus = style.unviewed;
       }
