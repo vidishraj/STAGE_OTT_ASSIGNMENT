@@ -21,7 +21,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const { state, dispatch } = useStoryContext();
 
   useEffect(() => {
@@ -29,8 +28,12 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       const user = state.users[selectedUser];
       if (user) {
         setCurrentUserName(user.user || "");
-        setImgIdx(0);
-        setInitialLoad(true);
+        setIsLoading(true);
+        setIsImageLoaded(false);
+        const stories = user.stories || [];
+        const firstUnviewedIndex = stories.findIndex((img) => !img.viewed);
+        const newImgIdx = firstUnviewedIndex !== -1 ? firstUnviewedIndex : 0;
+        setImgIdx(newImgIdx);
       }
     }
   }, [open, selectedUser, state.users]);
@@ -44,69 +47,31 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
   );
 
   useEffect(() => {
-    if (!open || imageSrcList.length === 0 || !currentUser) return;
-
-    setIsLoading(true);
-    setIsImageLoaded(false);
-
-    if (initialLoad) {
-      const firstUnviewedIndex = imageSrcList.findIndex((img) => !img.viewed);
-      const newImgIdx = firstUnviewedIndex !== -1 ? firstUnviewedIndex : 0;
-      setImgIdx(newImgIdx);
-      setInitialLoad(false);
-    }
-
     if (
+      open &&
+      imageSrcList.length > 0 &&
       imgIdx >= 0 &&
-      imgIdx < imageSrcList.length &&
-      !imageSrcList[imgIdx].viewed
+      imgIdx < imageSrcList.length
     ) {
-      dispatch({
-        type: "MARK_STORY_VIEWED",
-        user: userName,
-        storyUrl: imageSrcList[imgIdx].url,
-      });
-    }
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
-    }
-  }, [
-    open,
-    currentUserName,
-    imageSrcList.length,
-    dispatch,
-    userName,
-    initialLoad,
-    currentUser,
-  ]);
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
 
-  useEffect(() => {
-    if (
-      !open ||
-      imageSrcList.length === 0 ||
-      imgIdx < 0 ||
-      imgIdx >= imageSrcList.length
-    )
-      return;
+      const currentStory = imageSrcList[imgIdx];
+      if (currentStory && !currentStory.viewed) {
+        dispatch({
+          type: "MARK_STORY_VIEWED",
+          user: userName,
+          storyUrl: currentStory.url,
+        });
+      }
 
-    setIsLoading(true);
-    setIsImageLoaded(false);
-
-    const currentStory = imageSrcList[imgIdx];
-    if (currentStory && !currentStory.viewed) {
-      dispatch({
-        type: "MARK_STORY_VIEWED",
-        user: userName,
-        storyUrl: currentStory.url,
-      });
-    }
-
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
+      setIsLoading(true);
+      setIsImageLoaded(false);
     }
   }, [imgIdx, open, imageSrcList, dispatch, userName]);
+
   useEffect(() => {
     if (!open || !isImageLoaded || imageSrcList.length === 0) return;
 
@@ -114,29 +79,19 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
       setImgIdx((prevIdx) => {
         if (prevIdx + 1 >= imageSrcList.length) {
           clearInterval(id);
-
-          const allStoriesViewedForCurrentUser = imageSrcList.every(
-            (story) => story.viewed,
-          );
-
-          if (allStoriesViewedForCurrentUser) {
-            dispatch({
-              type: "MARK_USER_VIEWED",
-              user: userName,
-            });
-          }
-
           handleUserComplete();
           return prevIdx;
         }
-
         return prevIdx + 1;
       });
     }, 5000);
 
     setIntervalId(id);
-    return () => clearInterval(id);
-  }, [open, isImageLoaded, imageSrcList, userName, dispatch]);
+
+    return () => {
+      if (id) clearInterval(id);
+    };
+  }, [open, isImageLoaded, imageSrcList]);
 
   const findNextUser = (currentIndex: number) => {
     if (currentIndex < 0 || currentIndex >= state.users.length) {
@@ -157,6 +112,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
     return state.users[currentIndex - 1];
   };
+
   const handleUserComplete = () => {
     imageSrcList.forEach((story) => {
       if (!story.viewed) {
@@ -183,7 +139,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
       setCurrentUserName(nextUser.user);
       setImgIdx(0);
-      setInitialLoad(true); // Reset initialLoad for the new user
+      setIsLoading(true);
+      setIsImageLoaded(false);
     } else {
       // No more users, complete viewing
       onComplete();
@@ -210,7 +167,6 @@ const StoryViewer: React.FC<StoryViewerProps> = ({
 
           setCurrentUserName(prevUser.user);
           setImgIdx(prevUser.stories.length - 1);
-          setInitialLoad(false); // Don't look for unviewed stories when going back
         }
       } else {
         // Go to previous story
