@@ -1,6 +1,8 @@
 # STAGE_OTT_ASSIGNMENT
 Instagram Stories assignment for Stage 
 
+
+**LIVE LINK** https://insta-stageott.netlify.app/ </br> </br>
 Hello! Sorry I could not finish this earlier. I had a busy Sprint and had plans to travel to Mumbai for Lollapalooza ( here right now! ). I was able to find a few hours to do this though  
 
 Feature implemented. 
