@@ -26,7 +26,7 @@ Design choices
 - Avoid css for animation. Simpler states. 
 - Use context to avoid prop drilling and unecessary re-renders on random state changes.
 - A lot of DOM recyling.
-- Preload images to improve speed.
+- Preload images to improve speed. (Removed to make it a bit more realistic - check commit to index.html)
 
 Design choices in a more realistic scenario with a backend
 - Lazy loading stories that are not in view.
