@@ -1,0 +1,21 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  background-color: white;
+}
+
+
+.storyBoxContainer {
+  height: 120px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  overflow-x: scroll;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
